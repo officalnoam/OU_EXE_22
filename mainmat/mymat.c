@@ -3,6 +3,28 @@
 #include <stdio.h>
 
 /*
+Creates a copy of a passed matrix.
+Goes over the data field and copies each value to the new matrix copy.
+*/
+mat* copy_matrix(mat* matrix)
+{
+  int i;
+  int j;
+  mat* matrix_copy = (mat*) malloc(sizeof(mat));
+  
+  if (matrix_copy == NULL)
+    perror("Memory allocatiomn failed\n");
+  
+  for (i = 0; i < MATRIX_SIZE; i++)
+  {
+    for (j = 0; j < MATRIX_SIZE; j++)
+      matrix_copy->data[i][j] = matrix->data[i][j];
+  }
+  
+  return matrix_copy;
+}
+
+/*
 Goes over all items in the matrix
 */
 void initialize_matrix(mat* matrix)
@@ -93,6 +115,11 @@ void mult_matrix(mat* source_matrix_a, mat* source_matrix_b, mat* target_matrix)
   int j;
   int k;
   
+  /*Copy the source matrix's so that if one of them is also the target- that changing the values of target change the values of the source.*/
+  mat* source_matrix_a_cp = copy_matrix(source_matrix_a);
+  mat* source_matrix_b_cp = copy_matrix(source_matrix_b);
+  
+  /*Initialize the matrix so that the initial values of the matrix don't affect the result.*/
   initialize_matrix(target_matrix);
 
   for (i = 0; i < MATRIX_SIZE; i++)
@@ -100,9 +127,12 @@ void mult_matrix(mat* source_matrix_a, mat* source_matrix_b, mat* target_matrix)
     for (j = 0; j < MATRIX_SIZE; j++)
     {
       for (k = 0; k < MATRIX_SIZE; k++)
-        target_matrix->data[i][j] = target_matrix->data[i][j] + source_matrix_a->data[i][k] * source_matrix_b->data[k][j];
+        target_matrix->data[i][j] = target_matrix->data[i][j] + source_matrix_a_cp->data[i][k] * source_matrix_b_cp->data[k][j];
     }
   }
+  
+  free(source_matrix_a_cp);
+  free(source_matrix_b_cp);
 }
 
 /*
@@ -129,35 +159,16 @@ void transpose(mat* source_matrix, mat* target_matrix)
 {
   int i;
   int j;
+  
+  /*Copy the source matrix so that if the source and target matrixes are the same- that the transpose isn't affected by already changed items.*/
+  mat* source_matrix_cp = copy_matrix(source_matrix);
 
   for (i = 0; i < MATRIX_SIZE; i++)
   {
     for (j = 0; j < MATRIX_SIZE; j++)
-      target_matrix->data[i][j] = source_matrix->data[j][i];
+      target_matrix->data[i][j] = source_matrix_cp->data[j][i];
   }
+  
+  free(source_matrix_cp);
 }
 
-int main()
-{
-  double temp[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-  mat matrix1;
-  mat matrix2;
-  mat matrix3;
-  matrix_values vals;
-  vals.data = temp;
-  vals.len = 15;
-  
-  initialize_matrix(&matrix1);
-  initialize_matrix(&matrix2);
-  initialize_matrix(&matrix3);
-  
-  set_matrix_values(&matrix1, &vals);
-  print_matrix(&matrix1);
-  printf("\n\n");
-  transpose(&matrix1, &matrix2);
-  print_matrix(&matrix2);
-  printf("\n\n");
-  mult_matrix(&matrix1, &matrix2, &matrix3);
-  print_matrix(&matrix3);
-  return 1;
-}

@@ -11,7 +11,16 @@
     double* data;
     int len;
   } matrix_values;
-
+  
+  /*
+  This function will create a copy of a matrix.
+  
+  Input-
+    mat* matrix: The matrix being copied.
+  Output-
+    mat* matrix: The copy of the matrix.
+  */
+  mat* copy_matrix(mat* matrix);
   /*
   This function receives a matrix and initializes all of its values to 0.
   
