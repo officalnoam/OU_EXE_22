@@ -2,6 +2,7 @@
   #include "mymat.h"
   
   #define MAT_LIST
+  #define MAT_NAME_LEN 6
 
   typedef struct {
     mat* mat_a;

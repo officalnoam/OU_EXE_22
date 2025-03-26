@@ -34,22 +34,22 @@ This function will return the pointer to the matrix matching the passed matrix n
 */
 mat* get_mat_from_name(char* mat_name, mat_list* mats)
 {
-  if (strncmp(mat_name, "MAT_A", 6) == 0)
+  if (strncmp(mat_name, "MAT_A", MAT_NAME_LEN) == 0)
     return mats->mat_a; 
 
-  if (strncmp(mat_name, "MAT_B", 6) == 0)
+  if (strncmp(mat_name, "MAT_B", MAT_NAME_LEN) == 0)
     return mats->mat_b;
 
-  if (strncmp(mat_name, "MAT_C", 6) == 0)
+  if (strncmp(mat_name, "MAT_C", MAT_NAME_LEN) == 0)
     return mats->mat_c;
   
-  if (strncmp(mat_name, "MAT_D", 6) == 0)
+  if (strncmp(mat_name, "MAT_D", MAT_NAME_LEN) == 0)
     return mats->mat_d;
 
-  if (strncmp(mat_name, "MAT_E", 6) == 0)
+  if (strncmp(mat_name, "MAT_E", MAT_NAME_LEN) == 0)
     return mats->mat_e;
   
-  if (strncmp(mat_name, "MAT_F", 6) == 0)
+  if (strncmp(mat_name, "MAT_F", MAT_NAME_LEN) == 0)
     return mats->mat_f;
 
   return NULL;

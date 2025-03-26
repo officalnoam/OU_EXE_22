@@ -5,8 +5,6 @@
   
   #define MAIN_MAT
   #define BUFFER_SIZE 50
-  #define LARGEST_COMMAND 10
-  #define MAT_NAME_LEN 6
   
   typedef struct {
     mat* source_matrix_a;
@@ -17,23 +15,8 @@
 
   } parameters;
 
-  typedef enum {
-    read_mat,
-    print_mat,
-    add_mat,
-    sub_mat,
-    mul_mat,
-    mul_scalar,
-    trans_mat,
-    stop,
-    undefined
-  } matrix_operation;
-
   void teardown_mats(mat_list* mats);
   char* get_command_line();
-  matrix_operation convert_command_to_enum(char* command);
-  bool is_command_line_empty(char* command_line); 
-  matrix_operation get_command(char* command_line, int* index_p);
   mat* parse_matrix_argument(char* command_line, int* index_p, bool last_argument, mat_list* mats);
   int parse_int(char* str, int* index_p);
   matrix_values* parse_int_list(char*, int* index_p); 
