@@ -24,10 +24,24 @@
     mat* mat_f;
   } mat_list;
 
+  typedef enum {
+    read_mat,
+    print_mat,
+    add_mat,
+    sub_mat,
+    mul_mat,
+    mul_scalar,
+    trans_mat,
+    stop,
+    undefined
+  } matrix_operation;
+
   mat_list* initialize_mats(mat* MAT_A, mat* MAT_B, mat* MAT_C, mat* MAT_D, mat* MAT_E, mat* MAT_F);
   void teardown_mats(mat_list* mats);
   char* get_command_line();
-  char* get_command(char* str, int* index_p);
+  matrix_operation convert_command_to_enum(char* command);
+  bool is_command_line_empty(char* str); 
+  matrix_operation get_command(char* command_line, int* index_p);
   char* parse_matrix_argument(char* str, int* index_p);
   int parse_int(char* str, int* index_p);
   matrix_values* parse_int_list(char*, int* index_p); 
