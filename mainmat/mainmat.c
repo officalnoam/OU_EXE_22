@@ -148,7 +148,7 @@ Get the command from the user which is the first word..
 matrix_operation get_command(char* command_line, int* index_p)
 {
   char* command = (char*) malloc(LARGEST_COMMAND * sizeof(char));
-  command_name com_name;
+  matrix_operation com_name;
 
   *index_p = 0;
   while(command_line[*index_p] != ' ' && command_line[*index_p] != '\t' && command_line[*index_p] != '\0')
@@ -175,13 +175,140 @@ matrix_operation get_command(char* command_line, int* index_p)
   com_name = convert_command_to_enum(command);
   free(command);
 
-  if (com_name == undefined && !is_command_line_empty(str))
+  if (com_name == undefined && !is_command_line_empty(command_line))
     printf("Undefined command name.\n");
 
   return com_name;
 }
 
-char* parse_matrix_argument(char* str, int* index_p);
+/*
+This function will return the pointer to the matrix matching the passed matrix name.
+*/
+mat* get_mat_from_name(char* mat_name, mat_list* mats)
+{
+  if (strncmp(mat_name, "MAT_A", 6) == 0)
+    return mats->mat_a; 
+
+  if (strncmp(mat_name, "MAT_B", 6) == 0)
+    return mats->mat_b;
+
+  if (strncmp(mat_name, "MAT_C", 6) == 0)
+    return mats->mat_c;
+  
+  if (strncmp(mat_name, "MAT_D", 6) == 0)
+    return mats->mat_d;
+
+  if (strncmp(mat_name, "MAT_E", 6) == 0)
+    return mats->mat_e;
+  
+  if (strncmp(mat_name, "MAT_F", 6) == 0)
+    return mats->mat_f;
+
+  return NULL;
+}
+
+/*
+Parse a matrix argument, and enforce the syntax for arguments of commands.
+Move the index whose pointer was passed to the argument, parse the matrix name and enforce it's validity.
+If the matrix is the final argument for the command line- ensure that the rest of the line is whitespaces.
+if the matrix is not the final argument- push the index whose pointer was passed to the next argument, and ensure a single comma appears.
+*/
+mat* parse_matrix_argument(char* command_line, int* index_p, bool last_argument, mat_list* mats)
+{
+  int j = 0;
+  char* mat_name = (char*) malloc(MAT_NAME_LEN * sizeof(char));
+  mat* matrix;
+  bool comma_appeared = false;
+
+  if (mat_name == NULL)
+  {
+    perror("Memory allocation failed");
+    return NULL;
+  }
+
+  /*Advance the index through any whitespaces*/  
+  while (command_line[*index_p] == ' ' || command_line[*index_p] == '\t')
+  {
+    /*String end reached, but the matrix argument isn't in the command line*/
+    if (command_line[*index_p] == '\0')
+    {
+      printf("Missing argument");
+      free(mat_name);
+      return NULL;
+    }
+  }
+
+  /*Find the matrix name*/
+  while (!(last_argument && command_line[*index_p] == '\0') && command_line[*index_p] != ' ' && command_line[*index_p] != '\t' && command_line[*index_p] != ',')
+  {
+    /*String end reached, but the argument is not the final one*/
+    if (command_line[*index_p] == '\0')
+    {
+      mat_name[j] = '\0';
+      matrix = get_mat_from_name(mat_name, mats);
+      
+      if (matrix == NULL)
+        printf("Undefined matrix name.\n");
+      else
+        printf("Missing argument\n");
+      
+      free(mat_name);
+      return NULL;
+    }
+    
+    mat_name[j] = command_line[*index_p];
+    j++;
+    *index_p = *index_p + 1;
+  }
+
+  mat_name[j] = '\0';
+  matrix = get_mat_from_name(mat_name, mats);
+  free(mat_name);
+  
+  if (matrix == NULL)
+  {
+    printf("Undefined matrix name.\n");
+    return NULL;
+  }
+
+  /*If this is the last argument- make sure there isn't extra text after*/
+  if (last_argument)
+  {
+    while (last_argument && command_line[*index_p] != '\0')
+    {
+      if (command_line[*index_p] != ' ' && command_line[*index_p] != '\t')
+      {
+        printf("Extraneous text after end of command.\n");
+        return NULL;
+      }
+      *index_p = *index_p + 1;
+    }
+    return matrix;
+  }
+  
+  /*Push the pointer to the next argument, and make sure that a comma appears between arguments- but only once*/
+  while (command_line[*index_p] == ' ' || command_line[*index_p] == '\t' || command_line[*index_p] == ',')
+  {
+    if (command_line[*index_p] == ',')
+    {
+      if (comma_appeared)
+      {
+        printf("Multiple consecutive commas.\n");
+        return NULL;
+      }
+      comma_appeared = true;
+    }
+    *index_p = *index_p + 1;
+  }
+  
+  if (!comma_appeared)
+  {
+    printf("Missing comma.\n");
+    return NULL;
+  }
+  return matrix;
+}
+
 int parse_int(char* str, int* index_p);
 matrix_values* parse_int_list(char*, int* index_p);
 mat* get_matrix_from_name(char* mat_name, mat_list* mat_list_p);
@@ -220,7 +347,6 @@ int main()
   while (should_continue)
   {
     command_line = get_command_line();
-    
     /*If the command line is null, memory allocation failed or EOF was inputted*/
     if (command_line == NULL)
       break;
